@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arah Kiblat — Instrumen Ilmu Falak</title>
+<style>
+  :root{
+    --bg-deep:#0c2e22;
+    --bg-deeper:#07201a;
+    --ivory:#f4ead8;
+    --ivory-soft:#faf3e3;
+    --gold:#c9a227;
+    --gold-light:#e8cf7a;
+    --gold-deep:#8a6d1d;
+    --terracotta:#9c4a32;
+    --ink:#2a2118;
+    --ink-soft:#5b4d3c;
+    --line:rgba(201,162,39,.38);
+    --shadow:rgba(0,0,0,.4);
+    --font-display:'Amiri','Scheherazade New',Georgia,'Times New Roman',serif;
+    --font-body:'Segoe UI',Tahoma,system-ui,-apple-system,sans-serif;
+    --font-mono:'Cambria Math','Courier New',ui-monospace,monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at 50% -10%, #14463350 0%, transparent 60%),
+      var(--bg-deep);
+    color:var(--ivory);
+    font-family:var(--font-body);
+    line-height:1.5;
+    min-height:100vh;
+  }
+
+  .app{max-width:1180px;margin:0 auto;padding:28px 18px 60px;}
+
+  /* ---------- ornamen strip (pola geometris islami, svg data-uri, offline) ---------- */
+  .ornament-strip{
+    height:14px;
+    margin:14px auto 0;
+    max-width:560px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='14'><polygon points='14,1 26,7 14,13 2,7' fill='none' stroke='%23c9a227' stroke-width='1.3'/></svg>");
+    background-repeat:repeat-x;
+    background-position:center;
+    opacity:.85;
+  }
+
+  /* ---------- toolbar aksi cepat ---------- */
+  .toolbar{
+    max-width:920px;margin:22px auto 0;
+    background:rgba(7,32,26,.55);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px 24px 26px;
+  }
+  .toolbar-buttons{
+    display:flex;gap:14px;flex-wrap:wrap;
+  }
+  .btn-top{
+    flex:1 1 220px;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:.95rem;
+    padding:15px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .btn-top:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.3);}
+  .btn-top:disabled{opacity:.6;cursor:wait;transform:none;}
+  .btn-top svg{flex-shrink:0;}
+  .btn-top.spin svg{animation:spin 1s linear infinite;}
+
+  .btn-top-terracotta{
+    background:linear-gradient(180deg,#b85a3f,var(--terracotta));
+    color:var(--ivory-soft);
+    border-color:#6e2f1d;
+  }
+  .btn-top-gold{
+    background:linear-gradient(180deg,var(--gold-light),var(--gold));
+    color:var(--ink);
+    border-color:var(--gold-deep);
+  }
+  .btn-top-green{
+    background:linear-gradient(180deg,#1f7a52,#155c3d);
+    color:var(--ivory-soft);
+    border-color:#0d3e29;
+  }
+
+  .toolbar-status{
+    text-align:center;
+    color:#cfe3da;
+    margin:10px 0 0;
+    min-height:1em;
+  }
+  .toolbar-status.ok{color:#8fe0ab;font-weight:600;font-style:normal;}
+  .toolbar-status.err{color:#ff9c8a;font-weight:600;font-style:normal;}
+
+  .howto{
+    margin-top:18px;
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+  .howto-toggle{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;
+    background:none;border:none;cursor:pointer;
+    padding:4px 0 10px;
+  }
+  .howto-title{
+    font-family:var(--font-display);
+    font-size:1.05rem;
+    color:var(--gold-light);
+    margin:0;
+    text-align:center;
+  }
+  .howto-chevron{
+    color:var(--gold-light);
+    transition:transform .25s ease;
+    flex-shrink:0;
+  }
+  .howto-toggle[aria-expanded="false"] .howto-chevron{transform:rotate(-90deg);}
+  .howto-steps{
+    margin:0;padding-left:0;list-style:none;
+    counter-reset:howto;
+    display:grid;gap:10px;
+  }
+  .howto-steps[hidden]{display:none;}
+  .howto-steps li{
+    counter-increment:howto;
+    position:relative;
+    padding:10px 14px 10px 44px;
+    background:rgba(201,162,39,.07);
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:.88rem;
+    color:#dcebe3;
+  }
+  .howto-steps li::before{
+    content:counter(howto);
+    position:absolute;left:12px;top:10px;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--gold);
+    color:var(--ink);
+    font-weight:700;font-size:.8rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .howto-steps li strong{color:var(--gold-light);}
+
+  @media (max-width:600px){
+    .btn-top{flex:1 1 100%;}
+  }
+
+
+  .masthead{text-align:center;padding-bottom:8px;}
+  .bismillah{
+    font-family:var(--font-display);
+    font-size:1.35rem;
+    color:var(--gold-light);
+    margin:14px 0 2px;
+    letter-spacing:.5px;
+  }
+  .title{
+    font-family:var(--font-display);
+    font-size:2.6rem;
+    margin:4px 0 2px;
+    color:var(--ivory);
+    letter-spacing:2px;
+    text-shadow:0 2px 14px rgba(0,0,0,.35);
+  }
+  .title .accent{color:var(--gold-light);}
+  .subtitle{
+    font-size:.92rem;
+    color:#cfe3da;
+    margin:0 0 16px;
+    font-style:italic;
+  }
+
+  .btn-ghost{
+    display:inline-flex;align-items:center;gap:8px;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--gold-light);
+    font-family:var(--font-body);
+    font-size:.85rem;
+    font-weight:600;
+    padding:9px 18px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease;
+  }
+  .btn-ghost:hover{background:rgba(201,162,39,.12);}
+  .btn-ghost svg{flex-shrink:0;}
+
+  /* ---------- drawer (kertas manuskrip / hujjah) ---------- */
+  .drawer{
+    max-width:920px;margin:18px auto 0;
+    overflow:hidden;
+  }
+  .drawer[hidden]{display:none;}
+  .parchment{
+    background:
+      linear-gradient(180deg, var(--ivory-soft), var(--ivory));
+    color:var(--ink);
+    border:1px solid var(--gold-deep);
+    border-radius:6px;
+    padding:26px 30px;
+    box-shadow:0 18px 40px var(--shadow);
+    position:relative;
+  }
+  .parchment::before{
+    content:"";
+    position:absolute;inset:8px;
+    border:1px dashed var(--line);
+    border-radius:3px;
+    pointer-events:none;
+  }
+  .parchment h3{
+    font-family:var(--font-display);
+    color:var(--gold-deep);
+    font-size:1.15rem;
+    margin:22px 0 8px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:6px;
+  }
+  .parchment h3:first-child{margin-top:0;}
+  .parchment p{margin:6px 0;font-size:.94rem;color:var(--ink-soft);}
+  .parchment .arabic-line{
+    font-family:var(--font-display);
+    font-size:1.3rem;
+    color:var(--ink);
+    margin:10px 0;
+    direction:rtl;
+  }
+  .parchment .ref{
+    font-weight:700;color:var(--terracotta);
+    font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;
+  }
+  .parchment ul{margin:8px 0;padding-left:20px;color:var(--ink-soft);font-size:.94rem;}
+  .parchment li{margin:6px 0;}
+
+  /* ---------- layout utama ---------- */
+  .panel-grid{
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    gap:22px;
+    margin-top:28px;
+    align-items:start;
+  }
+  @media (max-width:880px){
+    .panel-grid{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:var(--ivory);
+    color:var(--ink);
+    border-radius:8px;
+    padding:20px 22px;
+    margin-bottom:18px;
+    border:1px solid var(--gold-deep);
+    box-shadow:0 10px 28px var(--shadow);
+  }
+  .card h2{
+    font-family:var(--font-display);
+    font-size:1.15rem;
+    color:var(--gold-deep);
+    margin:0 0 14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .card h2 svg{flex-shrink:0;}
+
+  fieldset.coord-group{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:12px 14px 14px;
+    margin:0 0 14px;
+  }
+  fieldset.coord-group:disabled, fieldset.coord-group[data-disabled="true"]{
+    opacity:.45;
+  }
+  legend{
+    font-size:.78rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    color:var(--terracotta);
+    padding:0 6px;
+  }
+
+  .dms-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .dms-row label{
+    display:flex;flex-direction:column;
+    font-size:.74rem;color:var(--ink-soft);
+    font-weight:600;gap:4px;
+  }
+  .dms-row input{
+    width:78px;
+    font-family:var(--font-mono);
+    font-size:1rem;
+    padding:7px 8px;
+    border:1px solid var(--gold-deep);
+    border-radius:4px;
+    background:var(--ivory-soft);
+    color:var(--ink);
+  }
+  .dms-row input:focus-visible{
+    outline:2px solid var(--terracotta);
+    outline-offset:1px;
+  }
+
+  .hemi-row, .radio-block{
+    display:flex;gap:18px;flex-wrap:wrap;
+    margin-top:10px;font-size:.88rem;
+  }
+  .radio-block{flex-direction:column;gap:8px;margin-top:6px;margin-bottom:12px;}
+  .hemi-row label, .radio-block label{
+    display:flex;align-items:center;gap:6px;cursor:pointer;
+  }
+  input[type="radio"]{accent-color:var(--terracotta);width:15px;height:15px;}
+
+  .hint{font-size:.78rem;color:var(--ink-soft);font-style:italic;margin:4px 0 0;}
+
+  .actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn-primary{
+    flex:1;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(180deg,var(--gold-light),var(--gold));
+    color:var(--ink);
+    border:1px solid var(--gold-deep);
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:.95rem;
+    padding:13px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{box-shadow:0 6px 16px rgba(0,0,0,.25);transform:translateY(-1px);}
+  .actions .btn-ghost{color:var(--ink-soft);border-color:var(--gold-deep);}
+  .actions .btn-ghost:hover{background:rgba(154,122,29,.1);}
+
+  .btn-gps{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;
+    background:rgba(154,74,50,.08);
+    color:var(--terracotta);
+    border:1px solid var(--terracotta);
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:.88rem;
+    padding:10px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    margin-bottom:6px;
+    transition:background .2s ease, transform .15s ease;
+  }
+  .btn-gps:hover{background:rgba(154,74,50,.16);}
+  .btn-gps:disabled{opacity:.6;cursor:wait;}
+  .btn-gps svg{flex-shrink:0;}
+  .btn-gps.spin svg{animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  #gpsStatus{margin-bottom:14px;min-height:1em;}
+  #gpsStatus.ok{color:#2f6b3c;font-weight:600;font-style:normal;}
+  #gpsStatus.err{color:#c0392b;font-weight:600;font-style:normal;}
+
+  /* ---------- instrumen kompas ---------- */
+  .instrument{
+    background:var(--bg-deeper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px;
+    text-align:center;
+    box-shadow:0 18px 44px var(--shadow);
+  }
+  .compass-wrap{max-width:380px;margin:0 auto;}
+  #compassSvg{width:100%;height:auto;display:block;}
+
+  .reading{margin-top:14px;}
+  .reading-label{
+    font-size:.74rem;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--gold-light);margin:0;
+  }
+  .reading-value{
+    font-family:var(--font-mono);
+    font-size:1.9rem;font-weight:700;
+    color:var(--ivory);margin:4px 0 2px;
+  }
+  .reading-sub{
+    font-family:var(--font-display);
+    font-size:1.05rem;color:var(--terracotta);
+    background:rgba(201,162,39,.12);
+    display:inline-block;padding:4px 14px;border-radius:999px;
+    margin:2px 0;
+  }
+  .reading-distance{font-size:.82rem;color:#cfe3da;margin:8px 0 0;font-style:italic;}
+
+  .footnote{
+    text-align:center;margin-top:36px;font-size:.78rem;color:#9fc2b3;
+  }
+
+  /* ---------- kompas svg internal ---------- */
+  .tick-minor{stroke:var(--gold-deep);stroke-width:1;opacity:.6;}
+  .tick-major{stroke:var(--gold-light);stroke-width:1.6;}
+  .dial-label{
+    font-family:var(--font-body);
+    font-size:13px;font-weight:700;
+    fill:var(--ivory);
+    text-anchor:middle;dominant-baseline:middle;
+  }
+  .dial-label.north{fill:var(--terracotta);}
+  .star-bezel{fill:rgba(201,162,39,.08);stroke:var(--gold);stroke-width:1.4;}
+  .ring-outer{fill:none;stroke:var(--gold);stroke-width:3;}
+  .ring-inner{fill:var(--bg-deep);stroke:var(--gold-deep);stroke-width:1.4;}
+  .needle{transform-origin:200px 200px;transition:transform .9s cubic-bezier(.2,.8,.2,1);}
+  @media (prefers-reduced-motion:reduce){.needle{transition:none;}}
+  .needle-kaabah{fill:#15110c;stroke:var(--gold-light);stroke-width:2;}
+  .needle-front{fill:var(--terracotta);}
+  .needle-back{fill:var(--gold-deep);}
+  .pivot{fill:var(--gold-light);stroke:var(--bg-deeper);stroke-width:1.5;}
+  .device-marker{fill:var(--ivory);stroke:var(--bg-deeper);stroke-width:1;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="masthead">
+    <div class="ornament-strip" aria-hidden="true"></div>
+    <h1 class="title">Kompas <span class="accent">Kiblat</span></h1>
+    <p class="subtitle">Instrumen Ilmu Falak untuk Menentukan Arah Kiblat dari Koordinat Bumi</p>
+    <button id="toggleDalil" class="btn-ghost" type="button" aria-expanded="false" aria-controls="dalilDrawer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M4 6c2-1.5 4-1.5 6 0v13c-2-1.5-4-1.5-6 0V6Z"/>
+        <path d="M20 6c-2-1.5-4-1.5-6 0v13c2-1.5 4-1.5 6 0V6Z"/>
+      </svg>
+      <span id="toggleDalilText">Tampilkan Dalil, Fikih &amp; Pendapat Ulama tentang Kiblat</span>
+    </button>
+    <div class="ornament-strip" aria-hidden="true"></div>
+  </header>
+
+  <section class="toolbar" aria-label="Aksi cepat">
+    <div class="toolbar-buttons">
+      <button id="btnGps" class="btn-top btn-top-terracotta" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
+        <span id="btnGpsText">1. Gunakan Lokasi GPS</span>
+      </button>
+      <button id="btnHitung" class="btn-top btn-top-gold" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 12 16 8M12 12 9 16"/></svg>
+        2. Hitung Arah Kiblat
+      </button>
+      <button id="btnLiveCompass" class="btn-top btn-top-green" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 14 2-6 4 2-2 6z"/></svg>
+        <span id="btnLiveCompassText">3. Aktifkan Kompas Live</span>
+      </button>
+    </div>
+    <p class="hint toolbar-status" id="gpsStatus"></p>
+    <p class="hint toolbar-status" id="errorMsg" style="color:#ffb4a8;"></p>
+    <p class="hint toolbar-status" id="liveCompassStatus"></p>
+
+    <div class="howto">
+      <button id="toggleHowto" class="howto-toggle" type="button" aria-expanded="true" aria-controls="howtoSteps">
+        <span class="howto-title">Cara Kerja Aplikasi</span>
+        <svg id="howtoChevron" class="howto-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <ol class="howto-steps" id="howtoSteps">
+        <li><strong>Tentukan lokasi Anda</strong> — klik "Gunakan Lokasi GPS" agar koordinat lintang &amp; bujur terisi otomatis dari sensor HP, atau isi manual pada kolom Derajat-Menit-Detik di bawah.</li>
+        <li><strong>Hitung arah kiblat</strong> — klik "Hitung Arah Kiblat". Aplikasi akan menghitung sudut kiblat dari lokasi Anda menuju Ka'bah memakai rumus trigonometri bola, lalu menampilkannya dalam derajat-menit-detik dan menggerakkan jarum pada kompas.</li>
+        <li><strong>Koreksi deklinasi (opsional)</strong> — isi nilai deklinasi magnetik lokal Anda agar bacaan "Arah Kiblat di Kompas Magnetik" akurat saat dipakai bersama kompas fisik biasa.</li>
+        <li><strong>Aktifkan kompas live</strong> — klik "Aktifkan Kompas Live", izinkan akses sensor orientasi, lalu putar tubuh/HP Anda perlahan hingga jarum emas menunjuk lurus ke atas. Itulah arah kiblat yang harus dihadap saat salat.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="dalilDrawer" class="drawer" hidden>
+    <div class="parchment">
+
+      <h3>Ayat Al-Qur'an tentang Arah Kiblat</h3>
+      <p class="ref">QS. Al-Baqarah [2] : 144</p>
+      <p class="arabic-line">فَوَلِّ وَجْهَكَ شَطْرَ الْمَسْجِدِ الْحَرَامِ</p>
+      <p>Allah memerintahkan Nabi Muhammad ﷺ dan umatnya untuk mengalihkan arah salat dari Baitul Maqdis (Yerusalem) menuju Masjidil Haram di Makkah. Ayat ini menegaskan bahwa di mana pun seorang muslim berada, ia tetap diperintahkan menghadapkan wajahnya ke arah Masjidil Haram saat salat.</p>
+
+      <p class="ref">QS. Al-Baqarah [2] : 149</p>
+      <p>Allah mengulang penegasan bahwa kebenaran perintah menghadap kiblat datang dari-Nya, dan memerintahkan agar wajah dihadapkan ke arah Masjidil Haram di mana pun seseorang berada.</p>
+
+      <p class="ref">QS. Al-Baqarah [2] : 150</p>
+      <p>Ayat ini menambahkan bahwa perintah menghadap kiblat berlaku bagi siapa pun, baik yang dekat maupun yang jauh dari Makkah, agar tidak ada alasan bagi orang lain untuk mempermasalahkan kewajiban tersebut, kecuali bagi mereka yang berbuat zalim.</p>
+
+      <h3>Argumentasi Fikih tentang Arah Kiblat</h3>
+      <ul>
+        <li>Menghadap kiblat (<em>istiqbal al-qiblah</em>) merupakan salah satu syarat sahnya salat menurut kesepakatan (ijma') ulama empat mazhab, kecuali dalam kondisi darurat tertentu — misalnya salat di atas kendaraan yang terus berubah arah, atau ketika benar-benar tidak diketahui arah kiblat sama sekali setelah berusaha mencari tahu.</li>
+        <li>Para ulama membedakan dua istilah: <strong>"ain al-qiblah"</strong> — menghadap secara fisik tepat ke bangunan Ka'bah, yang hanya dapat dipastikan penuh oleh orang yang melihatnya langsung — dan <strong>"jihat al-qiblah"</strong> (arah perkiraan/ijtihad), yaitu cukup menghadap ke arah yang diyakini sebagai arah Ka'bah bagi orang yang jauh dari Makkah, melalui ijtihad, perhitungan, atau alat bantu seperti kompas dan ilmu falak.</li>
+        <li>Mazhab Syafi'i dan sebagian ulama mensyaratkan upaya maksimal (ijtihad) mendekati "ain al-qiblah" menggunakan sarana paling akurat yang tersedia pada zamannya — sehingga penggunaan ilmu hisab/astronomi modern untuk menentukan arah kiblat dipandang sebagai bentuk ijtihad yang dianjurkan, bukan sekadar pilihan.</li>
+        <li>Mazhab Hanafi cenderung memberi kelonggaran lebih besar: cukup menghadap arah umum (jihat) tanpa harus meyakini ketepatan mutlak, selama sudah berusaha wajar untuk mengetahui arahnya.</li>
+        <li>Jika seseorang telah berijtihad semaksimal mungkin namun kemudian diketahui arah yang ditujunya kurang tepat, salat yang telah dikerjakan tetap dianggap sah — karena yang dituntut adalah usaha (ijtihad), bukan kepastian mutlak yang berada di luar kemampuan manusia.</li>
+      </ul>
+
+      <h3>Pendapat Ulama tentang Pentingnya Menentukan Arah Kiblat</h3>
+      <ul>
+        <li>Ulama sepakat bahwa mencari kepastian arah kiblat dengan sarana paling akurat yang tersedia adalah kewajiban, terutama bagi pengurus masjid, lembaga keagamaan, dan ahli ilmu falak, karena arah kiblat menjadi rujukan ibadah salat bagi banyak orang.</li>
+        <li>Sejumlah ulama kontemporer dan lembaga fatwa di Indonesia pernah merekomendasikan pengecekan ulang arah kiblat masjid-masjid lama menggunakan metode astronomi modern (ilmu hisab), setelah ditemukan ketidaktepatan arah pada bangunan yang dahulu hanya mengandalkan perkiraan kasar. Ini menegaskan pentingnya ilmu pengetahuan dan teknologi — termasuk data GPS/Google Earth — sebagai sarana ijtihad masa kini.</li>
+        <li>Para ahli ilmu falak menekankan bahwa penentuan arah kiblat idealnya memperhitungkan bentuk bumi yang bulat (geodesi), bukan sekadar garis lurus di atas peta datar, karena trigonometri bola lebih akurat untuk jarak jauh seperti dari Indonesia ke Makkah.</li>
+        <li>Kesimpulannya, menentukan arah kiblat dengan seakurat mungkin bukan semata persoalan teknis, tetapi juga bagian dari kesungguhan (<em>ihtiyath</em>) seorang muslim dalam menjalankan ibadah agar lebih mendekati kebenaran dan kesempurnaan salatnya.</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <main class="panel-grid">
+
+    <!-- ============ PANEL INPUT ============ -->
+    <section class="control-panel" aria-label="Masukan koordinat">
+
+      <div class="card">
+        <h2>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6d1d" stroke-width="1.8"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+          Koordinat Lokasi Anda
+        </h2>
+        <p class="hint" style="margin-top:0;">Gunakan tombol "1. Gunakan Lokasi GPS" di bagian atas halaman untuk mengisi otomatis, atau isi manual kolom di bawah ini.</p>
+
+        <fieldset class="coord-group">
+          <legend>Lintang Tempat</legend>
+          <div class="dms-row">
+            <label>Derajat (°)<input type="number" id="latD" min="0" max="90" step="1" value="6"></label>
+            <label>Menit (')<input type="number" id="latM" min="0" max="59" step="1" value="10"></label>
+            <label>Detik (")<input type="number" id="latS" min="0" max="59.99" step="0.01" value="0"></label>
+          </div>
+          <div class="hemi-row" role="radiogroup" aria-label="Belahan lintang">
+            <label><input type="radio" name="latHemi" value="U"> Lintang Utara (LU)</label>
+            <label><input type="radio" name="latHemi" value="S" checked> Lintang Selatan (LS)</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="coord-group">
+          <legend>Bujur Tempat</legend>
+          <div class="dms-row">
+            <label>Derajat (°)<input type="number" id="lonD" min="0" max="180" step="1" value="106"></label>
+            <label>Menit (')<input type="number" id="lonM" min="0" max="59" step="1" value="49"></label>
+            <label>Detik (")<input type="number" id="lonS" min="0" max="59.99" step="0.01" value="0"></label>
+          </div>
+          <div class="hemi-row" role="radiogroup" aria-label="Belahan bujur">
+            <label><input type="radio" name="lonHemi" value="T" checked> Bujur Timur (BT)</label>
+            <label><input type="radio" name="lonHemi" value="B"> Bujur Barat (BB)</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="coord-group">
+          <legend>Koreksi Deklinasi Magnetik</legend>
+          <p class="hint" style="margin-top:0;">Selisih antara Utara Sejati dan Utara Magnetik kompas di lokasi Anda. Cari nilainya melalui situs deklinasi magnetik (mis. NOAA/NCEI) sesuai lokasi &amp; tanggal, lalu masukkan di sini.</p>
+          <div class="dms-row">
+            <label>Derajat (°)<input type="number" id="decD" min="0" max="90" step="1" value="0"></label>
+            <label>Menit (')<input type="number" id="decM" min="0" max="59" step="1" value="0"></label>
+          </div>
+          <div class="hemi-row" role="radiogroup" aria-label="Arah deklinasi">
+            <label><input type="radio" name="decDir" value="T" checked> Deklinasi Timur (+)</label>
+            <label><input type="radio" name="decDir" value="B"> Deklinasi Barat (\u2212)</label>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="card">
+        <h2>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6d1d" stroke-width="1.8"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 9h6v6H9z"/></svg>
+          Koordinat Ka'bah
+        </h2>
+
+        <div class="radio-block" role="radiogroup" aria-label="Sumber koordinat Ka'bah">
+          <label><input type="radio" name="kaabahMode" value="standar" checked> Gunakan koordinat standar / rujukan umum (21°25'21.04" LU, 39°49'34.18" BT)</label>
+          <label><input type="radio" name="kaabahMode" value="kustom"> Kustom / hasil pengukuran sendiri (mis. data GPS Google Earth)</label>
+        </div>
+
+        <fieldset class="coord-group" id="kaabahCustomFields" data-disabled="true">
+          <legend>Lintang &amp; Bujur Ka'bah (Kustom)</legend>
+          <div class="dms-row">
+            <label>Lintang ° (LU)<input type="number" id="kLatD" min="0" max="90" step="1" value="21" disabled></label>
+            <label>Menit<input type="number" id="kLatM" min="0" max="59" step="1" value="25" disabled></label>
+            <label>Detik<input type="number" id="kLatS" min="0" max="59.99" step="0.01" value="21.04" disabled></label>
+          </div>
+          <div class="dms-row" style="margin-top:10px;">
+            <label>Bujur ° (BT)<input type="number" id="kLonD" min="0" max="180" step="1" value="39" disabled></label>
+            <label>Menit<input type="number" id="kLonM" min="0" max="59" step="1" value="49" disabled></label>
+            <label>Detik<input type="number" id="kLonS" min="0" max="59.99" step="0.01" value="34.18" disabled></label>
+          </div>
+        </fieldset>
+        <p class="hint">Tips: ambil titik tengah bangunan Ka'bah di Google Earth, lalu salin nilai lintang/bujurnya ke kolom di atas untuk presisi lebih tinggi.</p>
+      </div>
+
+      <div class="card">
+        <h2>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6d1d" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/><circle cx="12" cy="12" r="2"/></svg>
+          Kompas Live (Sensor Perangkat)
+        </h2>
+        <p class="hint" style="margin-top:0;">Klik tombol "3. Aktifkan Kompas Live" di bagian atas halaman untuk memutar jarum kiblat secara langsung mengikuti arah hadap fisik HP/tablet Anda (memakai sensor magnetometer bawaan perangkat). Fitur ini memerlukan perangkat dengan sensor kompas (umumnya HP) dan koneksi HTTPS, serta hitung arah kiblat terlebih dahulu.</p>
+      </div>
+
+      <div class="actions">
+        <button id="btnReset" class="btn-ghost" type="button" style="width:100%;">Atur Ulang Semua Isian</button>
+      </div>
+    </section>
+
+    <!-- ============ PANEL KOMPAS ============ -->
+    <section class="instrument" aria-label="Kompas arah kiblat">
+      <div class="compass-wrap">
+        <svg id="compassSvg" viewBox="0 0 400 400" role="img" aria-label="Kompas arah kiblat"></svg>
+      </div>
+      <div class="reading">
+        <p class="reading-label">Arah Kiblat dari Utara Sejati</p>
+        <p id="resultDms" class="reading-value">— ° — ' — "</p>
+        <p id="resultQuadrant" class="reading-sub">Masukkan koordinat, lalu hitung</p>
+
+        <p class="reading-label" style="margin-top:14px;">Arah Kiblat di Kompas Magnetik (setelah koreksi deklinasi)</p>
+        <p id="resultMagnetic" class="reading-value" style="font-size:1.4rem;color:var(--gold-light);">— ° — ' — "</p>
+
+        <p id="resultDistance" class="reading-distance"></p>
+        <p id="liveHeadingReadout" class="reading-distance" style="color:var(--gold-light);"></p>
+      </div>
+    </section>
+
+  </main>
+
+  <p class="footnote">Perhitungan menggunakan trigonometri bola (great-circle bearing) — berlaku untuk lokasi mana pun di permukaan bumi. Aplikasi ini berjalan sepenuhnya secara lokal di peramban Anda, tanpa koneksi internet.</p>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ===================== INTI PERHITUNGAN ILMU FALAK ===================== */
+
+  function dmsToDecimal(d, m, s, hemi){
+    var dd = Math.abs(d) + Math.abs(m)/60 + Math.abs(s)/3600;
+    if(hemi === "S" || hemi === "B") dd = -dd;
+    return dd;
+  }
+
+  function decimalToDms(dd){
+    var sign = dd < 0 ? "-" : "+";
+    dd = Math.abs(dd);
+    var d = Math.floor(dd);
+    var remM = (dd - d) * 60;
+    var m = Math.floor(remM);
+    var s = (remM - m) * 60;
+    return { d:d, m:m, s:s, sign:sign };
+  }
+
+  function calculateQiblaBearing(lat1, lon1, lat2, lon2){
+    var phi1 = lat1 * Math.PI/180;
+    var phi2 = lat2 * Math.PI/180;
+    var dLambda = (lon2 - lon1) * Math.PI/180;
+    var y = Math.sin(dLambda);
+    var x = Math.cos(phi1)*Math.tan(phi2) - Math.sin(phi1)*Math.cos(dLambda);
+    var theta = Math.atan2(y, x) * 180/Math.PI;
+    return (theta + 360) % 360;
+  }
+
+  function fmtDms(dd){
+    var r = decimalToDms(dd);
+    return r.d + "\u00b0 " + r.m + "' " + r.s.toFixed(2) + "\"";
+  }
+
+  function bearingToQuadrant(bearing){
+    if(bearing < 90)  return "U " + fmtDms(bearing) + " T";
+    if(bearing < 180) return "S " + fmtDms(180 - bearing) + " T";
+    if(bearing < 270) return "S " + fmtDms(bearing - 180) + " B";
+    return "U " + fmtDms(360 - bearing) + " B";
+  }
+
+  function haversineKm(lat1, lon1, lat2, lon2){
+    var R = 6371;
+    var phi1 = lat1*Math.PI/180, phi2 = lat2*Math.PI/180;
+    var dphi = (lat2-lat1)*Math.PI/180;
+    var dlambda = (lon2-lon1)*Math.PI/180;
+    var a = Math.sin(dphi/2)*Math.sin(dphi/2) +
+            Math.cos(phi1)*Math.cos(phi2)*Math.sin(dlambda/2)*Math.sin(dlambda/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  /* ===================== ELEMEN DOM ===================== */
+
+  var el = function(id){ return document.getElementById(id); };
+
+  var latD = el("latD"), latM = el("latM"), latS = el("latS");
+  var lonD = el("lonD"), lonM = el("lonM"), lonS = el("lonS");
+  var kLatD = el("kLatD"), kLatM = el("kLatM"), kLatS = el("kLatS");
+  var kLonD = el("kLonD"), kLonM = el("kLonM"), kLonS = el("kLonS");
+  var kaabahFieldset = el("kaabahCustomFields");
+  var errorMsg = el("errorMsg");
+
+  /* ===================== TOGGLE DRAWER DALIL (MINIMIZE) ===================== */
+
+  var drawer = el("dalilDrawer");
+  var toggleBtn = el("toggleDalil");
+  var toggleText = el("toggleDalilText");
+
+  toggleBtn.addEventListener("click", function(){
+    var terbuka = !drawer.hidden;
+    if(terbuka){
+      drawer.hidden = true;
+      toggleBtn.setAttribute("aria-expanded","false");
+      toggleText.textContent = "Tampilkan Dalil, Fikih & Pendapat Ulama tentang Kiblat";
+    } else {
+      drawer.hidden = false;
+      toggleBtn.setAttribute("aria-expanded","true");
+      toggleText.textContent = "Sembunyikan (Minimize) Keterangan";
+    }
+  });
+
+  /* ===================== TOGGLE PANEL CARA KERJA (MINIMIZE) ===================== */
+
+  var howtoSteps = el("howtoSteps");
+  var howtoToggle = el("toggleHowto");
+
+  howtoToggle.addEventListener("click", function(){
+    var terbuka = !howtoSteps.hidden;
+    if(terbuka){
+      howtoSteps.hidden = true;
+      howtoToggle.setAttribute("aria-expanded","false");
+    } else {
+      howtoSteps.hidden = false;
+      howtoToggle.setAttribute("aria-expanded","true");
+    }
+  });
+
+  function decimalToDmsFields(dd){
+    // Mengembalikan derajat,menit,detik dalam bentuk POSITIF (tanpa tanda),
+    // dipakai untuk mengisi kolom input yang terpisah dari hemisphere.
+    dd = Math.abs(dd);
+    var d = Math.floor(dd);
+    var remM = (dd - d) * 60;
+    var m = Math.floor(remM);
+    var s = (remM - m) * 60;
+    // pembulatan detik agar tidak menghasilkan 60.00 akibat floating point
+    s = Math.round(s * 100) / 100;
+    if(s >= 60){ s = 0; m += 1; }
+    if(m >= 60){ m = 0; d += 1; }
+    return { d:d, m:m, s:s };
+  }
+
+  /* ===================== TOMBOL GPS ===================== */
+
+  var btnGps = el("btnGps");
+  var btnGpsText = el("btnGpsText");
+  var gpsStatus = el("gpsStatus");
+
+  function isiFormDariGps(lat, lon){
+    var latAbs = decimalToDmsFields(lat);
+    var lonAbs = decimalToDmsFields(lon);
+
+    latD.value = latAbs.d; latM.value = latAbs.m; latS.value = latAbs.s.toFixed(2);
+    lonD.value = lonAbs.d; lonM.value = lonAbs.m; lonS.value = lonAbs.s.toFixed(2);
+
+    var hemiLatVal = lat < 0 ? "S" : "U";
+    var hemiLonVal = lon < 0 ? "B" : "T";
+    document.querySelector('input[name="latHemi"][value="' + hemiLatVal + '"]').checked = true;
+    document.querySelector('input[name="lonHemi"][value="' + hemiLonVal + '"]').checked = true;
+  }
+
+  btnGps.addEventListener("click", function(){
+    gpsStatus.className = "hint";
+    gpsStatus.textContent = "";
+
+    if(!("geolocation" in navigator)){
+      gpsStatus.className = "hint err";
+      gpsStatus.textContent = "Peramban ini tidak mendukung fitur lokasi GPS. Silakan isi koordinat secara manual.";
+      return;
+    }
+
+    btnGps.disabled = true;
+    btnGps.classList.add("spin");
+    btnGpsText.textContent = "Mencari lokasi...";
+    gpsStatus.textContent = "Mohon izinkan akses lokasi pada permintaan peramban Anda.";
+
+    navigator.geolocation.getCurrentPosition(
+      function(pos){
+        var lat = pos.coords.latitude;
+        var lon = pos.coords.longitude;
+        var akurasi = pos.coords.accuracy;
+
+        isiFormDariGps(lat, lon);
+
+        btnGps.disabled = false;
+        btnGps.classList.remove("spin");
+        btnGpsText.textContent = "Gunakan Lokasi GPS Saya";
+        gpsStatus.className = "hint ok";
+        gpsStatus.textContent = "Lokasi berhasil ditemukan (akurasi \u2248 " +
+            Math.round(akurasi) + " meter). Kolom lintang & bujur telah terisi otomatis.";
+      },
+      function(err){
+        btnGps.disabled = false;
+        btnGps.classList.remove("spin");
+        btnGpsText.textContent = "Gunakan Lokasi GPS Saya";
+        gpsStatus.className = "hint err";
+
+        var pesan;
+        switch(err.code){
+          case err.PERMISSION_DENIED:
+            pesan = "Akses lokasi ditolak. Mohon izinkan akses lokasi pada pengaturan peramban, lalu coba lagi.";
+            break;
+          case err.POSITION_UNAVAILABLE:
+            pesan = "Lokasi tidak dapat dideteksi saat ini. Pastikan GPS/layanan lokasi perangkat aktif.";
+            break;
+          case err.TIMEOUT:
+            pesan = "Permintaan lokasi melebihi batas waktu. Silakan coba lagi.";
+            break;
+          default:
+            pesan = "Terjadi kesalahan saat mengambil lokasi. Silakan isi koordinat secara manual.";
+        }
+        gpsStatus.textContent = pesan;
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    );
+  });
+
+  /* ===================== MODE KOORDINAT KA'BAH ===================== */
+
+  var kaabahRadios = document.querySelectorAll('input[name="kaabahMode"]');
+  var customFields = [kLatD, kLatM, kLatS, kLonD, kLonM, kLonS];
+
+  function updateKaabahMode(){
+    var mode = document.querySelector('input[name="kaabahMode"]:checked').value;
+    var aktif = mode === "kustom";
+    customFields.forEach(function(f){ f.disabled = !aktif; });
+    kaabahFieldset.dataset.disabled = aktif ? "false" : "true";
+  }
+  kaabahRadios.forEach(function(r){ r.addEventListener("change", updateKaabahMode); });
+
+  /* ===================== KOMPAS SVG ===================== */
+
+  var NS = "http://www.w3.org/2000/svg";
+  var svg = el("compassSvg");
+  var CX = 200, CY = 200, R_OUTER = 180, R_DIAL = 150, R_STAR_OUT = 168, R_STAR_IN = 138;
+
+  function makeEl(tag, attrs){
+    var e = document.createElementNS(NS, tag);
+    for(var k in attrs){ e.setAttribute(k, attrs[k]); }
+    return e;
+  }
+
+  function polarX(cx, r, deg){ return cx + r * Math.sin(deg * Math.PI/180); }
+  function polarY(cy, r, deg){ return cy - r * Math.cos(deg * Math.PI/180); }
+
+  function buildCompass(){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+    // cincin luar (statis, tidak ikut berputar)
+    svg.appendChild(makeEl("circle", { cx:CX, cy:CY, r:R_OUTER, class:"ring-outer" }));
+
+    // grup rotor: berisi bezel, tick, label arah mata angin -> akan diputar
+    // saat mode kompas live aktif, supaya posisinya merepresentasikan arah
+    // fisik sebenarnya sesuai orientasi perangkat.
+    var rotor = makeEl("g", { id:"dialRotor" });
+
+    // bezel bintang delapan (titik-titiknya sejajar dengan 8 arah mata angin)
+    var pts = [];
+    for(var i = 0; i < 16; i++){
+      var ang = i * 22.5;
+      var rad = (i % 2 === 0) ? R_STAR_OUT : R_STAR_IN;
+      pts.push(polarX(CX, rad, ang).toFixed(2) + "," + polarY(CY, rad, ang).toFixed(2));
+    }
+    rotor.appendChild(makeEl("polygon", { points: pts.join(" "), class:"star-bezel" }));
+
+    // piringan dalam
+    rotor.appendChild(makeEl("circle", { cx:CX, cy:CY, r:R_DIAL, class:"ring-inner" }));
+
+    // tick setiap 10 derajat
+    for(var deg = 0; deg < 360; deg += 10){
+      var major = deg % 30 === 0;
+      var rIn = major ? R_DIAL - 16 : R_DIAL - 9;
+      var line = makeEl("line", {
+        x1: polarX(CX, rIn, deg).toFixed(2), y1: polarY(CY, rIn, deg).toFixed(2),
+        x2: polarX(CX, R_DIAL, deg).toFixed(2), y2: polarY(CY, R_DIAL, deg).toFixed(2),
+        class: major ? "tick-major" : "tick-minor"
+      });
+      rotor.appendChild(line);
+    }
+
+    // label arah mata angin (Indonesia)
+    var labels = { 0:"U", 45:"TL", 90:"T", 135:"TG", 180:"S", 225:"BD", 270:"B", 315:"BL" };
+    Object.keys(labels).forEach(function(k){
+      var deg = parseInt(k, 10);
+      var x = polarX(CX, R_DIAL - 28, deg);
+      var y = polarY(CY, R_DIAL - 28, deg);
+      var t = makeEl("text", { x:x.toFixed(2), y:y.toFixed(2), class:"dial-label" + (deg===0 ? " north" : "") });
+      t.textContent = labels[k];
+      rotor.appendChild(t);
+    });
+
+    // grup jarum (menunjuk bearing kiblat, ikut berputar bersama rotor)
+    var needleGroup = makeEl("g", { id:"needleGroup", class:"needle" });
+
+    var frontTip = R_DIAL - 22;
+    var needleFront = makeEl("polygon", {
+      points: (CX-8)+","+CY+" "+CX+","+(CY-frontTip)+" "+(CX+8)+","+CY,
+      class:"needle-front"
+    });
+    var needleBack = makeEl("polygon", {
+      points: (CX-7)+","+CY+" "+CX+","+(CY + frontTip*0.42)+" "+(CX+7)+","+CY,
+      class:"needle-back"
+    });
+    needleGroup.appendChild(needleBack);
+    needleGroup.appendChild(needleFront);
+
+    var kaabahMark = makeEl("rect", {
+      x:CX-8, y:CY-frontTip-14, width:16, height:16, rx:2, class:"needle-kaabah"
+    });
+    needleGroup.appendChild(kaabahMark);
+
+    rotor.appendChild(needleGroup);
+    svg.appendChild(rotor);
+    svg.appendChild(makeEl("circle", { cx:CX, cy:CY, r:7, class:"pivot" }));
+
+    // penunjuk arah hadap perangkat (fixed di posisi jam 12, tidak ikut berputar)
+    // hanya terlihat relevan saat mode kompas live aktif
+    var deviceMarker = makeEl("polygon", {
+      id:"deviceFacingMark",
+      points: (CX-9)+","+(CY-R_OUTER-2)+" "+CX+","+(CY-R_OUTER-18)+" "+(CX+9)+","+(CY-R_OUTER-2),
+      class:"device-marker"
+    });
+    deviceMarker.style.display = "none";
+    svg.appendChild(deviceMarker);
+  }
+
+  function setNeedle(bearing){
+    var g = el("needleGroup");
+    g.style.transform = "rotate(" + bearing + "deg)";
+  }
+
+  function setRotor(rotationDeg){
+    var r = el("dialRotor");
+    r.style.transform = "rotate(" + rotationDeg + "deg)";
+    r.style.transformOrigin = CX + "px " + CY + "px";
+  }
+
+  buildCompass();
+
+  /* ===================== AMBIL & VALIDASI INPUT ===================== */
+
+  function num(input){
+    var v = parseFloat(input.value);
+    return isNaN(v) ? 0 : v;
+  }
+
+  function ambilLokasi(){
+    var hemiLat = document.querySelector('input[name="latHemi"]:checked').value;
+    var hemiLon = document.querySelector('input[name="lonHemi"]:checked').value;
+    var lat = dmsToDecimal(num(latD), num(latM), num(latS), hemiLat);
+    var lon = dmsToDecimal(num(lonD), num(lonM), num(lonS), hemiLon);
+    return { lat:lat, lon:lon };
+  }
+
+  function ambilKaabah(){
+    var mode = document.querySelector('input[name="kaabahMode"]:checked').value;
+    if(mode === "standar"){
+      return {
+        lat: dmsToDecimal(21, 25, 21.04, "U"),
+        lon: dmsToDecimal(39, 49, 34.18, "T")
+      };
+    }
+    return {
+      lat: dmsToDecimal(num(kLatD), num(kLatM), num(kLatS), "U"),
+      lon: dmsToDecimal(num(kLonD), num(kLonM), num(kLonS), "T")
+    };
+  }
+
+  function ambilDeklinasi(){
+    var arah = document.querySelector('input[name="decDir"]:checked').value;
+    return dmsToDecimal(num(decD), num(decM), 0, arah); // T=positif, B=negatif
+  }
+
+  function validasi(lat, lon){
+    if(lat < -90 || lat > 90) return "Derajat lintang harus berada pada rentang 0-90.";
+    if(lon < -180 || lon > 180) return "Derajat bujur harus berada pada rentang 0-180.";
+    return null;
+  }
+
+  /* ===================== AKSI HITUNG & RESET ===================== */
+
+  var bearingSejatiTerakhir = null; // dipakai oleh kompas live
+
+  function hitung(){
+    errorMsg.textContent = "";
+    var lokasi = ambilLokasi();
+    var kaabah = ambilKaabah();
+
+    var pesanError = validasi(lokasi.lat, lokasi.lon);
+    if(pesanError){ errorMsg.textContent = pesanError; return; }
+
+    var bearing = calculateQiblaBearing(lokasi.lat, lokasi.lon, kaabah.lat, kaabah.lon);
+    var dms = decimalToDms(bearing);
+    var notasi = bearingToQuadrant(bearing);
+    var jarak = haversineKm(lokasi.lat, lokasi.lon, kaabah.lat, kaabah.lon);
+
+    var deklinasi = ambilDeklinasi();
+    var bearingMagnetik = ((bearing - deklinasi) % 360 + 360) % 360;
+    var dmsMagnetik = decimalToDms(bearingMagnetik);
+
+    el("resultDms").textContent = dms.d + "\u00b0 " + dms.m + "' " + dms.s.toFixed(2) + "\"";
+    el("resultQuadrant").textContent = "Notasi Ilmu Falak: " + notasi;
+    el("resultMagnetic").textContent = dmsMagnetik.d + "\u00b0 " + dmsMagnetik.m + "' " + dmsMagnetik.s.toFixed(2) + "\"";
+    el("resultDistance").textContent = "Jarak garis lurus (great-circle) ke Ka'bah \u2248 " +
+        jarak.toLocaleString("id-ID", {maximumFractionDigits:1}) + " km";
+
+    bearingSejatiTerakhir = bearing;
+
+    if(liveCompassAktif){
+      // mode live: jarum diatur ulang oleh handler orientasi, bukan di sini
+      setNeedle(bearing);
+    } else {
+      setNeedle(bearing);
+    }
+  }
+
+  function resetForm(){
+    latD.value = 6; latM.value = 10; latS.value = 0;
+    lonD.value = 106; lonM.value = 49; lonS.value = 0;
+    decD.value = 0; decM.value = 0;
+    document.querySelector('input[name="latHemi"][value="S"]').checked = true;
+    document.querySelector('input[name="lonHemi"][value="T"]').checked = true;
+    document.querySelector('input[name="kaabahMode"][value="standar"]').checked = true;
+    document.querySelector('input[name="decDir"][value="T"]').checked = true;
+    updateKaabahMode();
+    errorMsg.textContent = "";
+    gpsStatus.className = "hint";
+    gpsStatus.textContent = "";
+    el("resultDms").textContent = "\u2014 \u00b0 \u2014 ' \u2014 \"";
+    el("resultQuadrant").textContent = "Masukkan koordinat, lalu hitung";
+    el("resultMagnetic").textContent = "\u2014 \u00b0 \u2014 ' \u2014 \"";
+    el("resultDistance").textContent = "";
+    el("liveHeadingReadout").textContent = "";
+    bearingSejatiTerakhir = null;
+    setNeedle(0);
+    setRotor(0);
+  }
+
+  el("btnHitung").addEventListener("click", hitung);
+  el("btnReset").addEventListener("click", resetForm);
+
+  /* ===================== KOMPAS LIVE (SENSOR PERANGKAT) ===================== */
+
+  var decD = el("decD"), decM = el("decM");
+  var btnLiveCompass = el("btnLiveCompass");
+  var btnLiveCompassText = el("btnLiveCompassText");
+  var liveCompassStatus = el("liveCompassStatus");
+  var liveHeadingReadout = el("liveHeadingReadout");
+  var liveCompassAktif = false;
+  var orientationHandler = null;
+
+  function formatDerajat(dd){
+    var r = decimalToDms(dd);
+    return r.d + "\u00b0 " + r.m + "' " + r.s.toFixed(1) + "\"";
+  }
+
+  function handleOrientation(event){
+    var magneticHeading;
+    if(typeof event.webkitCompassHeading === "number"){
+      // iOS Safari: sudah berupa heading kompas magnetik terkompensasi
+      magneticHeading = event.webkitCompassHeading;
+    } else if(event.absolute && event.alpha !== null){
+      // Android/Chrome (deviceorientationabsolute): alpha = rotasi berlawanan arah jarum jam dari Utara
+      magneticHeading = (360 - event.alpha) % 360;
+    } else if(event.alpha !== null){
+      // fallback: tidak terjamin relatif terhadap Utara sebenarnya
+      magneticHeading = (360 - event.alpha) % 360;
+    } else {
+      return;
+    }
+
+    var deklinasi = ambilDeklinasi();
+    var trueHeading = (magneticHeading + deklinasi + 360) % 360;
+
+    setRotor(-trueHeading);
+
+    liveHeadingReadout.textContent = "Arah hadap perangkat \u2014 Magnetik: " +
+        formatDerajat(magneticHeading) + "  |  Sejati: " + formatDerajat(trueHeading);
+  }
+
+  function aktifkanLiveCompass(){
+    liveCompassStatus.className = "hint";
+
+    if(bearingSejatiTerakhir === null){
+      liveCompassStatus.className = "hint err";
+      liveCompassStatus.textContent = "Hitung arah kiblat terlebih dahulu sebelum mengaktifkan kompas live.";
+      return;
+    }
+    if(typeof DeviceOrientationEvent === "undefined"){
+      liveCompassStatus.className = "hint err";
+      liveCompassStatus.textContent = "Perangkat/peramban ini tidak mendukung sensor orientasi.";
+      return;
+    }
+
+    function mulaiListen(){
+      var eventName = ("ondeviceorientationabsolute" in window) ? "deviceorientationabsolute" : "deviceorientation";
+      orientationHandler = handleOrientation;
+      window.addEventListener(eventName, orientationHandler, true);
+      liveCompassAktif = true;
+      el("deviceFacingMark").style.display = "block";
+      btnLiveCompassText.textContent = "Nonaktifkan Kompas Live";
+      liveCompassStatus.className = "hint ok";
+      liveCompassStatus.textContent = "Kompas live aktif. Putar perangkat Anda — jarum kiblat akan menyesuaikan secara otomatis.";
+    }
+
+    if(typeof DeviceOrientationEvent.requestPermission === "function"){
+      // iOS 13+ : wajib diminta lewat user gesture
+      DeviceOrientationEvent.requestPermission().then(function(state){
+        if(state === "granted"){
+          mulaiListen();
+        } else {
+          liveCompassStatus.className = "hint err";
+          liveCompassStatus.textContent = "Izin sensor gerak/orientasi ditolak. Aktifkan lewat pengaturan peramban untuk memakai fitur ini.";
+        }
+      }).catch(function(){
+        liveCompassStatus.className = "hint err";
+        liveCompassStatus.textContent = "Gagal meminta izin sensor orientasi pada perangkat ini.";
+      });
+    } else {
+      mulaiListen();
+    }
+  }
+
+  function nonaktifkanLiveCompass(){
+    if(orientationHandler){
+      window.removeEventListener("deviceorientationabsolute", orientationHandler, true);
+      window.removeEventListener("deviceorientation", orientationHandler, true);
+      orientationHandler = null;
+    }
+    liveCompassAktif = false;
+    el("deviceFacingMark").style.display = "none";
+    setRotor(0);
+    if(bearingSejatiTerakhir !== null) setNeedle(bearingSejatiTerakhir);
+    btnLiveCompassText.textContent = "Aktifkan Kompas Live";
+    liveCompassStatus.className = "hint";
+    liveCompassStatus.textContent = "Kompas live dinonaktifkan.";
+    liveHeadingReadout.textContent = "";
+  }
+
+  btnLiveCompass.addEventListener("click", function(){
+    if(liveCompassAktif){
+      nonaktifkanLiveCompass();
+    } else {
+      aktifkanLiveCompass();
+    }
+  });
+
+  updateKaabahMode();
+})();
+</script>
+</body>
+</html>
